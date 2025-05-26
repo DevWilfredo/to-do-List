@@ -44,11 +44,7 @@ const App = () => {
         date: getTodayDate(),
         title: title,
       };
-      let oldTasks = [];
-      tasks.length > 0
-        ? (oldTasks = [...tasks, newTask])
-        : oldTasks.push(newTask);
-      setTasks(oldTasks);
+      setTasks([...tasks, newTask]);
       return;
     }
     showNotification("La tarea ya existe");
