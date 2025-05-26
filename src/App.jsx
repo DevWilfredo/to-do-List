@@ -116,6 +116,7 @@ const App = () => {
                   key={index}
                   completeTask={completeTask}
                   isDeleting={deletingTask === item.title}
+                  
                 />
               ))}
             </div>
