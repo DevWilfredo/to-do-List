@@ -55,7 +55,7 @@ const App = () => {
   };
 
   const removeTask = (taskTitle) => {
-    setDeletingTask(taskTitle); // Marca para animación
+    setDeletingTask(taskTitle);
 
     setTimeout(() => {
       setTasks((prevTasks) =>
@@ -63,7 +63,7 @@ const App = () => {
       );
       showNotification("Tarea eliminada correctamente");
       setDeletingTask(null);
-    }, 500); // Duración de la animación
+    }, 500);
   };
 
   const completeTask = (task) => {
@@ -75,7 +75,6 @@ const App = () => {
   };
 
   return (
-    // Ejemplo de uso en App.jsx o donde lo necesites
     <>
       <div className="fixed top-4 right-4 z-50">
         {notification.show && (
@@ -87,7 +86,9 @@ const App = () => {
         )}
       </div>
       <div className="bg-gradient-to-r from-blue-500 to-teal-200 min-h-screen text-white flex flex-col items-center ">
-        <h1 className="text-4xl font-extrabold text-center mt-4 animate-fade-in">Todo List</h1>
+        <h1 className="text-4xl font-extrabold text-center mt-4 animate-fade-in">
+          Todo List
+        </h1>
         <div className="mt-4 animate-fade-in">
           <InputComponent addItem={addTask} />
         </div>
@@ -130,7 +131,6 @@ const App = () => {
             </div>
           )}
 
-          {/* Footer fijo abajo */}
           <div className="mt-auto">
             <hr className="h-px my-8 border-0 bg-blue-700" />
             <div className="text-start text-blue-900 font-semibold">
