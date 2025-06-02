@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import InputComponent from "./components/InputComponent";
 import TodoItemComponent from "./components/TodoItemComponent";
 import NotificationComponent from "./components/NotificationComponent";
@@ -50,6 +50,40 @@ const App = () => {
     showNotification("La tarea ya existe");
   };
 
+  const createTodo = (taskTitle) => {
+    if (taskTitle === "") {
+      showNotification("La tarea no puede estar vacia");
+      return;
+    }
+    const newTask = {
+      label: taskTitle,
+      is_done: false,
+    };
+    fetch("https://playground.4geeks.com/todo/todos/wilfredoDev", {
+      method: "POST",
+      body: JSON.stringify(newTask),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => {
+        console.log(resp.ok); // Will be true if the response is successful
+        console.log(resp.status); // Status code 201, 300, 400, etc.
+        return resp.json(); // Will attempt to parse the result to JSON and return a promise where you can use .then to continue the logic
+      })
+
+      .then((data) => {
+        // This is where your code should start after the fetch is complete
+        showNotification("Tarea eliminada correctamente");
+        fetchTodos();
+      })
+
+      .catch((error) => {
+        // Error handling
+        console.log(error);
+      });
+  };
+
   const removeTask = (taskTitle) => {
     setDeletingTask(taskTitle);
 
@@ -70,6 +104,71 @@ const App = () => {
     showNotification("Tarea completada correctamente");
   };
 
+  const createApiUser = () => {
+    const options = { method: "POST" };
+    fetch("https://playground.4geeks.com/todo/users/wilfredoDev", options)
+      .then((response) => response)
+      .finally((response) => fetchTodos());
+  };
+
+  const fetchTodos = () => {
+    const options = { method: "GET" };
+    fetch("https://playground.4geeks.com/todo/users/wilfredoDev", options)
+      .then((response) => response.json())
+      .then((response) => setTasks(response.todos))
+      .catch((err) => console.error(err));
+  };
+
+  const deleteTodo = (task) => {
+    const options = {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch(`https://playground.4geeks.com/todo/todos/${task.id}`, options)
+      .then((response) => {
+        showNotification("Tarea eliminada correctamente");
+        fetchTodos();
+      })
+      .catch((err) => console.error(err));
+  };
+  const updateTodo = (title,status,id) => {
+    const options = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: `{"label":"${title}","is_done":${status}}`,
+    };
+
+    fetch(`https://playground.4geeks.com/todo/todos/${id}`, options)
+      .then((response) => response.json())
+      .then((response) => {
+        showNotification("Tarea Actualizada correctamente");
+        fetchTodos();
+      })
+      .catch((err) => console.error(err));
+  };
+  const completeTodo = (task) => {
+    const options = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: `{"label":"${task.label}","is_done":true}`,
+    };
+
+    fetch(`https://playground.4geeks.com/todo/todos/${task.id}`, options)
+      .then((response) => response.json())
+      .then((response) => {
+        showNotification("Tarea completada correctamente");
+        fetchTodos();
+      })
+      .catch((err) => console.error(err));
+  };
+
+  
+
+  useEffect(() => {
+    createApiUser()
+  }, []);
+
   return (
     <>
       <div className="fixed top-4 right-4 z-50">
@@ -86,7 +185,7 @@ const App = () => {
           Todo List
         </h1>
         <div className="mt-4 animate-fade-in">
-          <InputComponent addItem={addTask} />
+          <InputComponent addItem={createTodo} />
         </div>
 
         <div
@@ -109,14 +208,15 @@ const App = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 flex-grow">
               {tasks.map((item, index) => (
                 <TodoItemComponent
-                  date={item.date}
-                  deleteTask={removeTask}
-                  status={item.status}
-                  title={item.title}
-                  key={index}
-                  completeTask={completeTask}
-                  isDeleting={deletingTask === item.title}
-                  
+                  date={getTodayDate}
+                  deleteTask={() => deleteTodo(item)}
+                  status={item.is_done}
+                  title={item.label}
+                  key={item.id}
+                  taskId={item.id}
+                  completeTask={() => completeTodo(item)}
+                  isDeleting={deletingTask === item.label}
+                  updateFunction = {updateTodo}
                 />
               ))}
             </div>
